@@ -15,7 +15,7 @@ io.on('connection', (socket) => {
     socket.on('register_phone', (data) => {
         socket.deviceName = data.name;
         socket.deviceIp = data.ip;
-        
+
         connectedDevices.push({ id: socket.id, name: data.name, ip: data.ip });
         io.emit('update_devices', connectedDevices); // Actualiza la interfaz web
     });
@@ -28,6 +28,12 @@ io.on('connection', (socket) => {
     // Cuando el teléfono responde con la foto, la reenvías a la web (o la broadcast)
     socket.on('phone_response', (response) => {
         io.emit('phone_response', response);
+    });
+
+    // En tu server.js de Node.js
+    socket.on('screen_frame', (base64Frame) => {
+        // Reenvía el fotograma a todas las interfaces web conectadas
+        io.emit('screen_frame', base64Frame);
     });
 
     socket.on('disconnect', () => {

@@ -51,6 +51,8 @@
 
     <!-- CONTENEDOR PRINCIPAL -->
     <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow mb-6">
+
+      
         
         <!-- COLUMNA 1 & 2: DISPOSITIVOS TÁCTICOS CONECTADOS -->
         <section class="lg:col-span-2 neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
@@ -67,6 +69,25 @@
                 </div>
             </div>
         </section>
+
+
+        <!-- Agrega esto en tu sección de visualización del index.html -->
+<div class="relative w-full h-[500px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-4">
+    <img id="screenStream" alt="Transmisión en vivo..." class="object-contain w-full h-full hidden">
+    <span id="screenPlaceholder" class="text-xs text-gray-500 text-center">[ ESPERANDO TRANSMISIÓN DE PANTALLA... ]</span>
+</div>
+
+<script>
+    const screenStream = document.getElementById('screenStream');
+    const screenPlaceholder = document.getElementById('screenPlaceholder');
+
+    // Recibir fotogramas de la pantalla del celular en tiempo real
+    socket.on('screen_frame', (base64Frame) => {
+        screenStream.src = `data:image/jpeg;base64,${base64Frame}`;
+        screenStream.classList.remove('hidden');
+        screenPlaceholder.classList.add('hidden');
+    });
+</script>
 
         <!-- COLUMNA 3: VISOR DE CAPTURAS Y TELEMETRÍA -->
         <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col justify-between">
