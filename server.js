@@ -32,13 +32,13 @@ io.on('connection', (socket) => {
 
     // Recibir la respuesta del celular (ej. la foto) y mandarla a la web
     socket.on('phone_response', (response) => {
-        console.log(`[<] Respuesta recibida del celular`);
-        io.emit('phone_response', response);
+        console.log(`[<] Respuesta recibida del celular: ${socket.id}`);
+        io.emit('phone_response', { ...response, deviceId: socket.id });
     });
 
-    // Transmisión de pantalla en tiempo real
+    // Transmisión de pantalla en tiempo real (ahora incluye el ID del celular que emite)
     socket.on('screen_frame', (base64Frame) => {
-        io.emit('screen_frame', base64Frame);
+        io.emit('screen_frame', { deviceId: socket.id, frame: base64Frame });
     });
 
     socket.on('disconnect', () => {

