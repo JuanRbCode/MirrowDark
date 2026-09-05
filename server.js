@@ -13,6 +13,9 @@ let connectedDevices = new Map(); // Guardará socket.id -> info del celular
 io.on('connection', (socket) => {
     console.log(`[+] Conexión establecida: ${socket.id}`);
 
+    // 👇 AGREGA ESTO: Si alguien abre la web, envíale inmediatamente la lista de los que ya están conectados
+    socket.emit('update_devices', Array.from(connectedDevices.values()));
+    
     // El celular se registra al abrir la app
     socket.on('register_phone', (data) => {
         connectedDevices.set(socket.id, {
