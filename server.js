@@ -29,7 +29,8 @@ io.on('connection', (socket) => {
     });
 });
 
-const PORT = 3000;
+// Render asigna un puerto automático con process.env.PORT; si no existe, usa el 3000 localmente
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Servidor MirrorDark corriendo en http://localhost:${PORT}`);
+    console.log(`Servidor MirrorDark corriendo en el puerto ${PORT}`);
 });
