@@ -194,6 +194,15 @@
               <button id="audio_btn_${dev.id}" onclick="toggleAudio('${dev.id}', '${dev.name}', this)" data-active="${state.isAudio}" class="${state.isAudio ? 'bg-green-600 text-white' : 'bg-gray-700 text-white'} text-[9px] font-bold py-1.5 px-1 rounded transition text-center">
                 ${state.isAudio ? '🎤 AUDIO: ON' : '🎤 AUDIO: OFF'}
               </button>
+
+              <!-- Control de Energía / Pantalla -->
+              <button onclick="turnOffScreen('${dev.id}', '${dev.name}')" class="bg-red-900/80 text-red-200 border border-red-700 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-red-800 transition text-center">
+                🔒 APAGAR PANTALLA
+              </button>
+
+              <button onclick="turnOnScreen('${dev.id}', '${dev.name}')" class="bg-blue-900/80 text-blue-200 border border-blue-700 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-blue-800 transition text-center">
+                💡 PRENDER PANTALLA
+              </button>
             </div>
           `;
           devicesContainer.appendChild(card);
@@ -263,6 +272,23 @@
 
           socket.emit("send_command_to_device", { targetId: socketId, action: "stop_camera" });
         }
+      }
+
+      // Nuevas funciones de control de pantalla
+      function turnOffScreen(socketId, deviceName) {
+        log(`Enviando orden de bloquear/apagar pantalla a: ${deviceName}`);
+        socket.emit("send_command_to_device", { 
+          targetId: socketId, 
+          action: "turn_off_screen" 
+        });
+      }
+
+      function turnOnScreen(socketId, deviceName) {
+        log(`Enviando orden de encender pantalla a: ${deviceName}`);
+        socket.emit("send_command_to_device", { 
+          targetId: socketId, 
+          action: "turn_on_screen" 
+        });
       }
 
       // Gestión de Audio independiente por dispositivo
